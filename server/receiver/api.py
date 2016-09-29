@@ -1,6 +1,13 @@
-from utils import send_command
+import json
+
+import requests
+
+from server.settings import MARANTZ_URL
 
 
+###
+# Control functions
+###
 def power(value):
     """
     Turns the device on or off. Expects 'on' or 'off'.
@@ -9,7 +16,7 @@ def power(value):
         raise ValueError('Value must be a string.')
 
     cmd = "PutZone_OnOff/%s" % value.upper()
-    return send_command(cmd)
+    return _send_command(cmd)
 
 
 def source(value):
@@ -20,7 +27,7 @@ def source(value):
         raise ValueError('Value must be a string.')
 
     cmd = "PutZone_InputFunction/%s" % value.upper()
-    return send_command(cmd)
+    return _send_command(cmd)
 
 
 def volume(value):
@@ -32,7 +39,7 @@ def volume(value):
 
     value -= 80.0
     cmd = "PutMasterVolumeSet/%s" % value
-    return send_command(cmd)
+    return _send_command(cmd)
 
 
 def halo():
@@ -43,7 +50,7 @@ def halo():
         'cmd0': "PutZone_OnOff/ON",
         'cmd1': "PutZone_InputFunction/GAME",
     }
-    send_command(data=data)
+    _send_command(data=data)
     return volume(39.0)
 
 
@@ -55,5 +62,32 @@ def music():
         'cmd0': "PutZone_OnOff/ON",
         'cmd1': "PutZone_InputFunction/CD",
     }
-    send_command(data=data)
+    _send_command(data=data)
     return volume(50.0)
+
+
+###
+# API utilities
+###
+def _get_cookies():
+    return {'ZoneName': 'MAIN%20ZONE	'}
+
+
+def _get_headers():
+    return {'referer': MARANTZ_URL % '/MainZone/index.html'}
+
+
+def _send_command(cmd0=None, data=None):
+    """
+    Send a command to the Marantz device.
+    """
+    if cmd0:
+        data = {
+            'cmd0': cmd0
+        }
+    elif not data:
+        raise ValueError('send_command received only None arguments.')
+
+    response = requests.post(MARANTZ_URL % '/MainZone/index.put.asp', data=data,
+                             cookies=_get_cookies(), headers=_get_headers())
+    return json.dumps({'status': response.status_code})

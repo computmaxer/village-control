@@ -1,35 +1,4 @@
-import json
-
 from flask_restful.reqparse import RequestParser
-
-import requests
-
-
-MARANTZ = 'http://172.16.2.4%s'
-
-
-def get_cookies():
-    return {'ZoneName': 'MAIN%20ZONE	'}
-
-
-def get_headers():
-    return {'referer': MARANTZ % '/MainZone/index.html'}
-
-
-def send_command(cmd0=None, data=None):
-    """
-    Send a command to the Marantz device.
-    """
-    if cmd0:
-        data = {
-            'cmd0': cmd0
-        }
-    elif not data:
-        raise ValueError('send_command received only None arguments.')
-
-    response = requests.post(MARANTZ % '/MainZone/index.put.asp', data=data,
-                             cookies=get_cookies(), headers=get_headers())
-    return json.dumps({'status': response.status_code})
 
 
 class ApiReqParser(RequestParser):
