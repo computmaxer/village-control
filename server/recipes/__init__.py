@@ -1,16 +1,19 @@
-from server import app
+from flask import Blueprint
+
 from server.receiver import api as receiver_api
 from server.settings import BASE_API
 
 
+recipes_module = Blueprint('recipes', __name__)
+
+
 # Halo on Xbox One
-@app.route(BASE_API % '/halo', methods=('PUT',))
+@recipes_module.route(BASE_API % '/v1/halo', methods=('PUT',))
 def halo():
     return receiver_api.halo()
 
 
 # Music from Alexa
-@app.route(BASE_API % '/music', methods=('PUT',))
+@recipes_module.route(BASE_API % '/v1/music', methods=('PUT',))
 def music():
     return receiver_api.music()
-

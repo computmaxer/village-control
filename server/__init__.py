@@ -8,16 +8,17 @@ sys.path.append(PROJECT_ROOT)
 from flask import Flask
 from flask_restful import output_json
 
-from server.receiver import api
+from server.receiver import receiver_module
+from server.recipes import recipes_module
+from server.settings import BASE_API
 
 ###
 # App setup
 ###
 app = Flask(__name__)
 
-# Setup device routes (must come after app declaration)
-from server import multi_device_routes
-from server.receiver import routes
+app.register_blueprint(receiver_module, url_prefix=BASE_API % '/receiver')
+app.register_blueprint(recipes_module, url_prefix=BASE_API % '/recipes')
 
 
 ###
